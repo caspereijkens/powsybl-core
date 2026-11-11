@@ -58,8 +58,13 @@ public class RegulatingControlMappingForShuntCompensators {
             return;
         }
         // Equipment participates in regulation and the regulating control information is present in the CGMES model
-        setRegulatingControl(shuntCompensator, regulatingControlId, rc);
-        rc.setCorrectlySet(true);
+        boolean okSet = RegulatingControlMapping.isControlModeVoltage(rc.mode);
+        if (okSet) {
+            setRegulatingControl(shuntCompensator, regulatingControlId, rc);
+        } else {
+            context.ignored(rc.mode, "Unsupported regulation mode for shunt compensator " + shuntCompensator.getId());
+        }
+        rc.setCorrectlySet(okSet);
     }
 
     private void setRegulatingControl(ShuntCompensator shuntCompensator, String rcId, RegulatingControl rc) {

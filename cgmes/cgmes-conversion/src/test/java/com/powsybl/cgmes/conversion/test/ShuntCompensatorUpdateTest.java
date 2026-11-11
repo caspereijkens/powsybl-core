@@ -45,6 +45,21 @@ class ShuntCompensatorUpdateTest {
     }
 
     @Test
+    void reactivePowerControlMustNotEnableVoltageRegulationTest() {
+        Network network = readCgmesResources(DIR, "shuntCompensator_reactivePower_EQ.xml", "shuntCompensator_reactivePower_SSH.xml");
+        assertEquals(3, network.getShuntCompensatorCount());
+
+        for (String id : new String[] {"LinearShuntCompensator", "NonLinearShuntCompensator"}) {
+            ShuntCompensator shunt = network.getShuntCompensator(id);
+            assertNotNull(shunt);
+            assertEquals(1, shunt.getSectionCount());
+            assertAll(id,
+                    () -> assertFalse(shunt.isVoltageRegulatorOn(), "Reactive power control must not enable voltage regulation"),
+                    () -> assertTrue(Double.isNaN(shunt.getTargetV()), "A reactive power target must not become a voltage target"));
+        }
+    }
+
+    @Test
     void importEqTwoSshsAndSvTest() {
         Network network = readCgmesResources(DIR, "shuntCompensator_EQ.xml");
         assertEquals(3, network.getShuntCompensatorCount());
